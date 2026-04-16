@@ -14,7 +14,7 @@ Amplify.configure(outputs);
 const client = generateClient<Schema>();
 
 export default function App() {
-    
+
   const { user, signOut } = useAuthenticator();
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
 
@@ -30,34 +30,108 @@ export default function App() {
   }, []);
 
   function createTodo() {
+    const content = window.prompt("Todo content");
+
+    if (!content) return;
+
     client.models.Todo.create({
-      content: window.prompt("Todo content"),
+      content,
+      completed: false,
+      createdAt: new Date().toISOString(),
     });
   }
- 
+
   function deleteTodo(id: string) {
     client.models.Todo.delete({ id })
   }
 
+  function toggleTodo(todo: Schema["Todo"]["type"]) {
+    client.models.Todo.update({
+      id: todo.id,
+      completed: !todo.completed,
+    });
+  }
+
   return (
-    <main>
-      <button onClick={signOut}>Sign out</button>
-      <h1>{user?.signInDetails?.loginId}'s todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li 
-          onClick={() => deleteTodo(todo.id)}
-          key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/">
-          Review next steps of this tutorial.
-        </a>
+    <div>
+      <div style={{
+        position: "fixed",
+        top: 50,
+        left: 50,
+        right: 50,
+        bottom: 50,
+        display: "flex",
+        flexDirection: "column",
+        background: "white",
+      }}>
+
+        {/* HEADER */}
+        <div style={{
+          flexShrink: 0,
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "16px",
+          borderBottom: "1px solid #ccc",
+        }}>
+          <button onClick={signOut}>Sign out</button>
+          <h1>{user?.signInDetails?.loginId}'s todos</h1>
+          <button onClick={createTodo}>+ new</button>
+        </div>
+
+        {/* SCROLL AREA (ONLY SCROLL EVER) */}
+        <div style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "12px",
+        }}>
+          <ul style={{ listStyle: "none", padding: 20 ,     maxWidth: "600px",   // controls width
+    margin: "0 auto",    // centers horizontally
+    width: "100%",}}>
+            {todos.map(todo => (
+              <li key={todo.id}
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  padding: "8px",
+                  borderBottom: "1px solid #eee"
+                }}>
+
+                <span
+                  onClick={() => toggleTodo(todo)}
+                  style={{
+                    flex: 1,
+                    cursor: "pointer",
+                    textDecoration: todo.completed ? "line-through" : "none"
+                  }}
+                >
+                  {todo.content}
+                </span>
+
+
+
+                <button onClick={() => deleteTodo(todo.id)}>
+                  ❌
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* FOOTER */}
+        <div style={{
+          flexShrink: 0,
+          padding: "10px",
+          borderTop: "1px solid #ccc"
+        }}>
+          🥳 App ready
+        </div>
+
       </div>
-    </main>
+    </div>
+
   );
 }
+
+
+
+

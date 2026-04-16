@@ -63,3 +63,9 @@ body {
     font-weight: 800;
     text-decoration: none;
   }
+
+  body {
+  margin: 0;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background: linear-gradient(180deg, rgb(117, 81, 194), rgb(255, 255, 255));
+}
